@@ -19,7 +19,7 @@ func NewHandler(repo *Repository, config *config.Config) *Handler {
 	}
 }
 
-// List GET /api/posts?page=1&limit=20&status=active
+// List GET /api/posts?page=1&limit=20&status=published
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	params := pagination.Parse(r, h.config.Pagination.DefaultLimit, h.config.Pagination.MaxLimit)
 
