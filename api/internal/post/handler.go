@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -35,15 +36,20 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	response.Paginated(w, posts, params.Page, params.Limit, total)
 }
 
-// ListByUserID GET /api/users/{userID}/posts?page=1&limit=20&status=published
+// ListByUserID GET /api/users/{id}/posts?page=1&limit=20&status=published
 func (h *Handler) ListByUserID(w http.ResponseWriter, r *http.Request) {
 	params := pagination.Parse(r, h.config.Pagination.DefaultLimit, h.config.Pagination.MaxLimit)
 
-	userID := chi.URLParam(r, "userID")
+	userID := chi.URLParam(r, "id")
 	if userID == "" {
-		response.Error(w, http.StatusBadRequest, "userID is required")
+		response.Error(w, http.StatusBadRequest, "user id is required")
 		return
 	}
+	if _, err := uuid.Parse(userID); err != nil {
+		response.Error(w, http.StatusBadRequest, "invalid user id")
+		return
+	}
+
 	posts, total, err := h.repo.ListByUserID(r.Context(), userID, params.Limit, params.Offset)
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, "failed to fetch posts")

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -40,6 +41,10 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 // GetByID GET /api/users/{id}
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+	if _, err := uuid.Parse(id); err != nil {
+		response.Error(w, http.StatusBadRequest, "invalid user id")
+		return
+	}
 
 	user, err := h.repo.GetByID(r.Context(), id)
 	if err != nil {
